@@ -1,18 +1,18 @@
-/*¨BÆJ¤@¡G½Ð¥ý±N¥H¤USELECTµ²ªG½Æ»s¥X¨Ó(½Ð¥Ñ¤W¦Ó¤U¨Ì§Ç½Æ»s)¡A¤@©w­n³£¥ý¥þ³¡¬d¸ß¥X¨Ó(¤@©w³£¦³µ²ªG)*/
-/*¨BÆJ¤G¡G²Ä2³¡¤ÀªºSQL»yªk ·j´MNVARCHAR(5000)§ï¦¨NVARCHAR(Max) ¦]¬°NVARCHAR¥u¦³¨ì4000*/
-/*¨BÆJ¤T¡G¦A¨Ì§Ç°õ¦æ¡A¤£¥i§ó°Ê¶¶§Ç*/
-/*³Æµù:²Ä2­ÓªºSQL»yªk»P¸ê®Æ²³¦h¡A¦]¦¹»Ý­nªá³\¦h®É¶¡°õ¦æ¡A½Ð­@¤ßµ¥«ÝSQL°õ¦æ§¹¦¨*/
+/*æ­¥é©Ÿä¸€ï¼šè«‹å…ˆå°‡ä»¥ä¸‹SELECTçµæžœè¤‡è£½å‡ºä¾†(è«‹ç”±ä¸Šè€Œä¸‹ä¾åºè¤‡è£½)ï¼Œä¸€å®šè¦éƒ½å…ˆå…¨éƒ¨æŸ¥è©¢å‡ºä¾†(ä¸€å®šéƒ½æœ‰çµæžœ)*/
+/*æ­¥é©ŸäºŒï¼šç¬¬2éƒ¨åˆ†çš„SQLèªžæ³• æœå°‹NVARCHAR(5000)æ”¹æˆNVARCHAR(Max) å› ç‚ºNVARCHARåªæœ‰åˆ°4000*/
+/*æ­¥é©Ÿä¸‰ï¼šå†ä¾åºåŸ·è¡Œï¼Œä¸å¯æ›´å‹•é †åº*/
+/*å‚™è¨»:ç¬¬2å€‹çš„SQLèªžæ³•èˆ‡è³‡æ–™çœ¾å¤šï¼Œå› æ­¤éœ€è¦èŠ±è¨±å¤šæ™‚é–“åŸ·è¡Œï¼Œè«‹è€å¿ƒç­‰å¾…SQLåŸ·è¡Œå®Œæˆ*/
 
 
-/* 1. ²£¥ÍSQL ²M°£PK */
-USE DG
+/* 1. ç”¢ç”ŸSQL æ¸…é™¤PK */
+USE XX_DataBase
 SELECT 'ALTER TABLE ' + TABLE_NAME + ' DROP CONSTRAINT ' + CONSTRAINT_NAME + '' FROM (
 SELECT DISTINCT CONSTRAINT_NAME, TABLE_NAME
 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE OBJECTPROPERTY(OBJECT_ID(constraint_name), 'IsPrimaryKey') = 1
 AND LEFT(table_name, 2) = 'TB') AS A
 
-/* 2. ²£¥ÍSQL ²M°£«DÂO¶°¯Á¤Þ*/
+/* 2. ç”¢ç”ŸSQL æ¸…é™¤éžå¢é›†ç´¢å¼•*/
 USE XX_DataBase
 SELECT ' DROP INDEX ' + Index_Name + ' ON ' + Table_Name + '' 
 FROM (SELECT DISTINCT SC.name AS Schema_Name, 
@@ -25,14 +25,14 @@ FROM (SELECT DISTINCT SC.name AS Schema_Name,
 	  WHERE I.name IS NOT NULL AND O.type = 'U' AND I.type_desc = 'NONCLUSTERED' AND is_unique = '0'
 	  ) AS A
 
-/* 3. ²£¥ÍSQL ½Õ¾ã varchar TO nvarchar ¦¹³¡¤Àªº§ó·s·|¦]¬°¸ê®Æ²³¦h»Ý­nªá³\¦h®É¶¡ */
+/* 3. ç”¢ç”ŸSQL èª¿æ•´ varchar TO nvarchar æ­¤éƒ¨åˆ†çš„æ›´æ–°æœƒå› ç‚ºè³‡æ–™çœ¾å¤šéœ€è¦èŠ±è¨±å¤šæ™‚é–“ */
 USE XX_DataBase
 SELECT DISTINCT 'ALTER TABLE ' + TABLE_NAME + ' ALTER COLUMN [' + COLUMN_NAME + '] NVARCHAR(' + CONVERT(VARCHAR(50),CHARACTER_MAXIMUM_LENGTH) + 
                 ') ' + CASE WHEN IS_NULLABLE = 'NO' THEN 'NOT NULL' ELSE 'NULL' END
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE Data_type = 'varchar' AND LEFT(TABLE_NAME, 2) = 'TB'
 
-/* 4. ²£¥ÍSQL «Ø¥ß«DÂO¶°¯Á¤Þ */
+/* 4. ç”¢ç”ŸSQL å»ºç«‹éžå¢é›†ç´¢å¼• */
 USE XX_DataBase
 SELECT 'CREATE NONCLUSTERED INDEX ' + Index_Name + ' ON ' + Table_Name + ' (' + SUBSTRING(column_name, 1, LEN(column_name) - 1) + ')' + result_column_name + ''
 FROM(
@@ -85,7 +85,7 @@ FROM(
             ) D
 )E
 
-/* 5. ²£¥ÍSQL «Ø¥ß PK */
+/* 5. ç”¢ç”ŸSQL å»ºç«‹ PK */
 USE XX_DataBase
 SELECT 'ALTER TABLE ' + TABLE_NAME + ' ADD CONSTRAINT PK_' + TABLE_NAME + ' PRIMARY KEY (' + SUBSTRING(Datelist, 1, LEN(Datelist) - 1) + ')'
 FROM(
